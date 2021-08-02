@@ -57,7 +57,6 @@ structure_list = []
 spectrum_list = []
 # Loop over materials ids, stripping whitespace (in particular line breaks)
 for material_id in [i.strip() for i in sys.stdin]:
-    print(material_id)
     # Download structure 
     try:
         structure = downloader.get_entry_by_material_id(\
@@ -83,7 +82,6 @@ for material_id in [i.strip() for i in sys.stdin]:
     spectrum_download_success = True
     for element in [element.symbol for element in structure.species]:
         spectrum_buffer = []
-        print("spectrum = record_to_spectrum(downloader.get_xas_data(\"{}\", \"{}\"))".format(material_id, element))
         try:
             spectrum_record = downloader.get_xas_data(material_id, element)
         except:
