@@ -67,16 +67,6 @@ for material_id in [i.strip() for i in sys.stdin]:
     except:
         print("Could not retrieve a structure for {} from database".format(material_id))
         structure_download_success = False
-    if structure_download_success:
-        # Annotate the structure with labels
-        annotation_success = add_descriptors(structure)
-        if annotation_success:
-            # Add the structure to the table
-            one_label_table = structure_to_table(structure)
-            one_label_table["id"] = material_id
-            structure_list.append(one_label_table)
-        else:
-            print("Could not calculate coordination environment for {}".format(material_id))
 
     # Download spectrum for each site and add them to the table
     spectrum_download_success = True
@@ -88,12 +78,34 @@ for material_id in [i.strip() for i in sys.stdin]:
             print("Could not retrieve an XAS spectrum for {} from database".format(material_id))
             spectrum_download_success = False
             break
-        spectrum = record_to_spectrum(spectrum_record)
+        # Sometimes spectrum construction fails due to invalid values in the spectrum
+        try:
+            spectrum = record_to_spectrum(spectrum_record)
+        except ValueError as err:
+            print("Spectrum for {} element {} is invalid. Error:".\
+                    format(material_id, element))
+            print(err)
+            spectrum_download_success = False
+            break
         one_spectrum_table = spectrum_to_table(spectrum)
         one_spectrum_table["id"] = material_id
         spectrum_buffer.append(one_spectrum_table)
     if spectrum_download_success:
         spectrum_list += spectrum_buffer
+
+    # Skip coordination environment if we couldn't get a spectrum, since it
+    # takes a long time
+    if structure_download_success and spectrum_download_success:
+        # Annotate the structure with labels
+        annotation_success = add_descriptors(structure)
+        if annotation_success:
+            # Add the structure to the table
+            one_label_table = structure_to_table(structure)
+            one_label_table["id"] = material_id
+            structure_list.append(one_label_table)
+        else:
+            print("Could not calculate coordination environment for {}".format(material_id))
+
 
 label_table = pd.concat(structure_list)
 spectrum_table = pd.concat(spectrum_list)
