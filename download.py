@@ -88,7 +88,7 @@ for material_id in [i.strip() for i in sys.stdin]:
             spectrum_download_success = False
             break
         one_spectrum_table = spectrum_to_table(spectrum)
-        one_spectrum_table["id"] = material_id
+        one_spectrum_table["mp_id"] = material_id
         spectrum_buffer.append(one_spectrum_table)
     if spectrum_download_success:
         spectrum_list += spectrum_buffer
@@ -101,7 +101,7 @@ for material_id in [i.strip() for i in sys.stdin]:
         if annotation_success:
             # Add the structure to the table
             one_label_table = structure_to_table(structure)
-            one_label_table["id"] = material_id
+            one_label_table["mp_id"] = material_id
             structure_list.append(one_label_table)
         else:
             print("Could not calculate coordination environment for {}".format(material_id))
