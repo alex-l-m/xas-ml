@@ -44,7 +44,6 @@ def structure_to_table(structure):
     '''Given a pymatgen crystal structure object, convert the site properties
     into a table, represented as a pandas dataframe'''
     site_properties = structure.site_properties
-    site_properties["element"] = [element.symbol for element in structure.species]
     return DataFrame(site_properties)
     
 def spectrum_to_table(spectrum):
@@ -96,6 +95,12 @@ for material_id in [i.strip() for i in sys.stdin]:
     # Skip coordination environment if we couldn't get a spectrum, since it
     # takes a long time
     if structure_download_success and spectrum_download_success:
+        # Add atom index and element to the structure
+        structure.add_site_property(\
+                "element", [element.symbol for element in structure.species])
+        structure.add_site_property(\
+                "atom_index", range(structure.num_sites))
+
         # Annotate the structure with labels
         annotation_success = add_descriptors(structure)
         if annotation_success:
