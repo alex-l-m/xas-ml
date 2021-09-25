@@ -69,8 +69,8 @@ for material_id in [i.strip() for i in sys.stdin]:
 
     # Download spectrum for each site and add them to the table
     spectrum_download_success = True
+    spectrum_buffer = []
     for element in [element.symbol for element in structure.species]:
-        spectrum_buffer = []
         try:
             spectrum_record = downloader.get_xas_data(material_id, element)
         except:
